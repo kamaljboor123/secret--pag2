@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كشف الرقم السري | شرح اللعبة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-sphere {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle at 30% 30%, rgba(100, 80, 255, 0.2), transparent 70%);
+            border-radius: 50%;
+            top: -200px;
+            right: -200px;
+            animation: sphereMove 20s infinite alternate;
+        }
+
+        .bg-sphere-2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle at 70% 70%, rgba(255, 100, 150, 0.15), transparent 70%);
+            border-radius: 50%;
+            bottom: -150px;
+            left: -150px;
+            animation: sphereMove2 25s infinite alternate;
+        }
+
+        @keyframes sphereMove {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-100px, 100px) scale(1.2); }
+        }
+
+        @keyframes sphereMove2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, -100px) scale(1.3); }
+        }
+
+        /* ===== الصفحة الأولى (الترحيب) ===== */
+        .landing-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 3000;
+            opacity: 1;
+            transition: opacity 1s ease;
+            overflow-y: auto;
+            padding: 30px 15px;
+        }
+
+        .landing-page.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .welcome-container {
+            max-width: 900px;
+            width: 100%;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 60px;
+            padding: 40px 30px;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .main-title p {
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        /* مستويات الصعوبة */
+        .levels-showcase {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .level-section {
+            flex: 1;
+            min-width: 160px;
+            text-align: center;
+            padding: 15px 10px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .level-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .level-section.easy { border: 3px solid #28a745; }
+        .level-section.medium { border: 3px solid #fdbb2d; }
+        .level-section.hard { border: 3px solid #dc3545; }
+
+        .level-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .level-section.easy .level-title { color: #28a745; }
+        .level-section.medium .level-title { color: #fdbb2d; }
+        .level-section.hard .level-title { color: #dc3545; }
+
+        .numbers-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .level-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            animation: levelFloat 3s infinite ease-in-out;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-section.easy .level-number { background: #28a745; }
+        .level-section.medium .level-number { background: #fdbb2d; color: #333; }
+        .level-section.hard .level-number { background: #dc3545; }
+
+        .level-number:nth-child(1) { animation-delay: 0s; }
+        .level-number:nth-child(2) { animation-delay: 0.2s; }
+        .level-number:nth-child(3) { animation-delay: 0.4s; }
+        .level-number:nth-child(4) { animation-delay: 0.6s; }
+        .level-number:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes levelFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+
+        .level-description {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+        .level-section.easy .level-description { color: #28a745; }
+        .level-section.medium .level-description { color: #fdbb2d; }
+        .level-section.hard .level-description { color: #dc3545; }
+
+        /* ===== بطاقة شرح اللعبة (بدلاً من شريط الإشارات) ===== */
+        .game-info-card {
+            background: linear-gradient(135deg, #f6f9fc, #e6f0fa);
+            border-radius: 40px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .info-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .info-section-title span {
+            font-size: 2rem;
+        }
+
+        .game-description-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 0 5px;
+        }
+
+        .how-to-play-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .how-to-item {
+            background: rgba(255,255,255,0.7);
+            border-radius: 30px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(102,126,234,0.2);
+        }
+
+        .how-to-number {
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .how-to-text {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .symbols-showcase {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0 10px;
+            flex-wrap: wrap;
+        }
+
+        .symbol-box {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 30px;
+            min-width: 140px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .big-plus {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #28a745;
+            line-height: 1;
+        }
+
+        .big-minus {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #fdbb2d;
+            line-height: 1;
+        }
+
+        .symbol-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .example-mini-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .example-mini {
+            background: white;
+            border-radius: 25px;
+            padding: 12px 20px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .example-digits-mini {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            direction: ltr;
+        }
+
+        .mini-digit {
+            width: 35px;
+            height: 35px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .mini-digit.highlight {
+            background: #667eea;
+            color: white;
+        }
+
+        .mini-result {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* قسم المحاكاة (كما هو) */
+        .simulation-section {
+            background: linear-gradient(135deg, #f6f9fc, #e6f0fa);
+            border-radius: 50px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .simulation-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .simulation-header span {
+            font-size: 2rem;
+        }
+
+        .simulation-header h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .sim-level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sim-level-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 8px 25px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sim-level-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .sim-level-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .secret-box {
+            background: white;
+            border-radius: 30px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .secret-box-label {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .secret-digits {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            direction: ltr;
+        }
+
+        .secret-digit-box {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .simulation-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sim-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sim-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .sim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .attempts-log {
+            background: rgba(255,255,255,0.8);
+            border-radius: 30px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: white;
+            margin: 8px 0;
+            border-radius: 50px;
+            border: 1px solid #667eea;
+            direction: ltr;
+            animation: fadeIn 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .log-guess {
+            font-family: monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            letter-spacing: 2px;
+        }
+
+        .log-result {
+            display: flex;
+            gap: 5px;
+        }
+
+        .log-plus {
+            color: #28a745;
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        .log-minus {
+            color: #fdbb2d;
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        .log-empty {
+            color: #999;
+            font-size: 1.8rem;
+        }
+
+        .win-message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.4rem;
+            color: #28a745;
+            font-weight: 700;
+        }
+
+        .start-game-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            border-radius: 60px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            max-width: 350px;
+            margin: 20px auto 0;
+            display: block;
+            box-shadow: 0 20px 40px rgba(40, 167, 69, 0.4);
+            transition: all 0.3s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-game-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 30px 50px rgba(40, 167, 69, 0.5);
+        }
+
+        /* ===== الصفحة الثانية (اللعبة) - ألوان فاتحة ===== */
+        .game-dashboard {
+            width: 100%;
+            max-width: 520px;
+            background: #f8fafc;
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            display: none;
+            position: relative;
+        }
+
+        .game-dashboard.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .back-to-home {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .back-to-home:hover {
+            background: #f1f5f9;
+            transform: scale(1.1);
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .sound-toggle:hover {
+            background: #f1f5f9;
+            transform: scale(1.1);
+        }
+
+        .quick-help {
+            position: absolute;
+            top: 60px;
+            right: 15px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .quick-help:hover {
+            background: #f1f5f9;
+            transform: scale(1.1);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 50px;
+            padding: 8px 15px;
+            margin-bottom: 15px;
+            margin-top: 5px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-icon {
+            font-size: 1.3rem;
+            color: #6366f1;
+        }
+
+        .timer-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1;
+        }
+
+        .timer-value.warning {
+            color: #f59e0b;
+        }
+
+        .timer-value.danger {
+            color: #ef4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .level-selector-top {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            background: #ffffff;
+            border-radius: 50px;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .level-option-btn {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 6px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 60px;
+        }
+
+        .level-option-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .secret-panel {
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 12px;
+            margin-bottom: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .secret-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .secret-digits {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            direction: ltr;
+        }
+
+        .secret-slot {
+            width: 45px;
+            height: 45px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            transition: all 0.3s;
+        }
+
+        .secret-slot.revealed {
+            background: #6366f1;
+            color: white;
+            border-color: transparent;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .control-btn {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            padding: 8px;
+            color: #1e293b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .control-btn:hover {
+            background: #f8fafc;
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .input-panel {
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .digits-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            direction: ltr;
+        }
+
+        .digit-field {
+            width: 50px;
+            height: 50px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
+            transition: all 0.3s;
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5);
+        }
+
+        .digit-field.active {
+            background: #6366f1;
+            border-color: transparent;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
+            to { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+        }
+
+        .check-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            width: fit-content;
+            box-shadow: 0 8px 15px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s;
+        }
+
+        .check-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .check-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: #cbd5e1;
+            color: #64748b;
+        }
+
+        .result-panel {
+            text-align: center;
+            margin-top: 10px;
+            min-height: 40px;
+            font-size: 2.2rem;
+        }
+
+        .result-panel span {
+            display: inline-block;
+            animation: pop 0.3s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .icon-plus { 
+            color: #4ade80; 
+            font-weight: 800; 
+            font-size: 1.6rem;
+            background: linear-gradient(45deg, #4ade80, #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .icon-minus { 
+            color: #fbbf24; 
+            font-weight: 800; 
+            font-size: 1.6rem;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .win-message-game {
+            text-align: center;
+            margin: 10px auto 5px;
+            padding: 12px 20px;
+            background: #4ade80;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-radius: 50px;
+            box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3);
+            width: fit-content;
+            max-width: 90%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .history-panel {
+            background: #ffffff;
+            border-radius: 25px;
+            padding: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .history-count {
+            background: #f1f5f9;
+            padding: 3px 10px;
+            border-radius: 20px;
+            color: #6366f1;
+            font-weight: 600;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 12px;
+            background: #f8fafc;
+            margin: 5px 0;
+            border-radius: 25px;
+            border: 1px solid #e2e8f0;
+            direction: ltr;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #f1f5f9;
+            transform: translateX(-5px);
+            border-color: #6366f1;
+        }
+
+        .history-item.winning-attempt {
+            background: #fef9c3;
+            border-color: #fbbf24;
+        }
+
+        .history-number {
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .history-icons {
+            display: flex;
+            gap: 3px;
+        }
+
+        .icon-plus-small { color: #4ade80; font-weight: 800; font-size: 1.1rem; }
+        .icon-minus-small { color: #fbbf24; font-weight: 800; font-size: 1.1rem; }
+
+        .keypad-rect {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .key-rect {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 0;
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cairo', sans-serif;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+
+        .key-rect:hover {
+            background: #f8fafc;
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(99, 102, 241, 0.1);
+        }
+
+        .key-rect:active {
+            transform: translateY(0);
+            background: #f1f5f9;
+        }
+
+        .delete-rect {
+            grid-column: span 5;
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #ef4444;
+            height: 45px;
+            font-size: 1.1rem;
+            margin-top: 5px;
+            border-radius: 8px;
+        }
+
+        .delete-rect:hover {
+            background: #fecaca !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c;
+        }
+
+        .help-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            border: 2px solid #6366f1;
+            border-radius: 30px;
+            padding: 25px;
+            max-width: 350px;
+            width: 90%;
+            z-index: 4000;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            color: #1e293b;
+        }
+
+        .help-popup.show {
+            display: block;
+            animation: popupFade 0.3s ease;
+        }
+
+        @keyframes popupFade {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .help-popup h3 {
+            color: #6366f1;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .help-popup p {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #475569;
+        }
+
+        .help-popup-close {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 8px 25px;
+            border-radius: 30px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 3500;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-3d">
+        <div class="bg-sphere"></div>
+        <div class="bg-sphere-2"></div>
+    </div>
+
+    <!-- الصفحة الأولى (الترحيب) مع بطاقة شرح -->
+    <div id="landingPage" class="landing-page">
+        <div class="welcome-container">
+            <div class="main-title">
+                <h1>🔐 كشف الرقم السري</h1>
+                <p>لعبة الذكاء والمنطق</p>
+            </div>
+
+            <!-- مستويات الصعوبة -->
+            <div class="levels-showcase">
+                <div class="level-section easy">
+                    <div class="level-title">سهل</div>
+                    <div class="numbers-container">
+                        <div class="level-number">1</div>
+                        <div class="level-number">2</div>
+                        <div class="level-number">3</div>
+                    </div>
+                    <div class="level-description">3 أرقام</div>
+                </div>
+                <div class="level-section medium">
+                    <div class="level-title">متوسط</div>
+                    <div class="numbers-container">
+                        <div class="level-number">4</div>
+                        <div class="level-number">5</div>
+                        <div class="level-number">6</div>
+                        <div class="level-number">7</div>
+                    </div>
+                    <div class="level-description">4 أرقام</div>
+                </div>
+                <div class="level-section hard">
+                    <div class="level-title">صعب</div>
+                    <div class="numbers-container">
+                        <div class="level-number">0</div>
+                        <div class="level-number">8</div>
+                        <div class="level-number">9</div>
+                        <div class="level-number">?</div>
+                        <div class="level-number">?</div>
+                    </div>
+                    <div class="level-description">5 أرقام</div>
+                </div>
+            </div>
+
+            <!-- بطاقة شرح اللعبة (موسعة) -->
+            <div class="game-info-card">
+                <div class="info-section-title">
+                    <span>🎯</span>
+                    <span>ما هي اللعبة؟</span>
+                </div>
+                <div class="game-description-text">
+                    كشف الرقم السري هي لعبة ذهنية ممتعة تعتمد على المنطق والاستنتاج. الهدف هو تخمين الرقم السري المكون من 3-5 أرقام خلال وقت محدد. مع كل محاولة، تحصل على إشارات تساعدك في تضييق الخيارات.
+                </div>
+
+                <div class="info-section-title" style="margin-top: 20px;">
+                    <span>📌</span>
+                    <span>كيف تلعب؟</span>
+                </div>
+                <div class="how-to-play-grid">
+                    <div class="how-to-item">
+                        <div class="how-to-number">1</div>
+                        <div class="how-to-text">اختر مستوى الصعوبة (3,4,5 أرقام)</div>
+                    </div>
+                    <div class="how-to-item">
+                        <div class="how-to-number">2</div>
+                        <div class="how-to-text">استخدم لوحة الأرقام لإدخال تخمينك</div>
+                    </div>
+                    <div class="how-to-item">
+                        <div class="how-to-number">3</div>
+                        <div class="how-to-text">اضغط "تحقق" لمعرفة النتيجة</div>
+                    </div>
+                    <div class="how-to-item">
+                        <div class="how-to-number">4</div>
+                        <div class="how-to-text">استمر حتى تكتشف الرقم السري</div>
+                    </div>
+                </div>
+
+                <div class="info-section-title" style="margin-top: 20px;">
+                    <span>🔍</span>
+                    <span>معنى الإشارات</span>
+                </div>
+                <div class="symbols-showcase">
+                    <div class="symbol-box">
+                        <div class="big-plus">+</div>
+                        <div class="symbol-desc">رقم صحيح في مكانه</div>
+                    </div>
+                    <div class="symbol-box">
+                        <div class="big-minus">-</div>
+                        <div class="symbol-desc">رقم صحيح في مكان خاطئ</div>
+                    </div>
+                </div>
+
+                <div class="example-mini-boxes">
+                    <div class="example-mini">
+                        <div class="example-digits-mini">
+                            <div class="mini-digit highlight">0</div>
+                            <div class="mini-digit highlight">0</div>
+                            <div class="mini-digit">7</div>
+                            <div class="mini-digit">8</div>
+                        </div>
+                        <div class="mini-result" style="color: #28a745;">++</div>
+                        <div style="font-size:0.8rem; color:#666;">الرقم السري 0034</div>
+                    </div>
+                    <div class="example-mini">
+                        <div class="example-digits-mini">
+                            <div class="mini-digit">4</div>
+                            <div class="mini-digit">3</div>
+                            <div class="mini-digit">2</div>
+                            <div class="mini-digit">1</div>
+                        </div>
+                        <div class="mini-result" style="color: #fdbb2d;">----</div>
+                        <div style="font-size:0.8rem; color:#666;">الرقم السري 1234</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم المحاكاة الذكية -->
+            <div class="simulation-section">
+                <div class="simulation-header">
+                    <span>🤖</span>
+                    <h3>المحاكاة الذكية: الكمبيوتر يحل اللغز</h3>
+                </div>
+
+                <div class="sim-level-selector">
+                    <button class="sim-level-btn" onclick="setSimLevel(3)">3 أرقام</button>
+                    <button class="sim-level-btn active" onclick="setSimLevel(4)">4 أرقام</button>
+                    <button class="sim-level-btn" onclick="setSimLevel(5)">5 أرقام</button>
+                </div>
+
+                <div class="secret-box">
+                    <div class="secret-box-label">الرقم السري العشوائي</div>
+                    <div class="secret-digits" id="secretDisplay"></div>
+                </div>
+
+                <div class="simulation-controls">
+                    <button class="sim-btn" id="startSimBtn" onclick="startSimulation()">
+                        <span>▶️</span> بدء المحاكاة
+                    </button>
+                    <button class="sim-btn" id="resetSimBtn" onclick="resetSimulation()" disabled>
+                        <span>🔄</span> إعادة
+                    </button>
+                </div>
+
+                <div class="attempts-log" id="simLog"></div>
+                <div id="winMessage" class="win-message"></div>
+            </div>
+
+            <!-- زر الانتقال إلى اللعبة -->
+            <button class="start-game-btn" onclick="startGame()">🚀 ابدأ اللعب</button>
+        </div>
+    </div>
+
+    <!-- الصفحة الثانية (اللعبة) - ألوان فاتحة -->
+    <div id="gameDashboard" class="game-dashboard">
+        <div class="back-to-home" onclick="goToLanding()" title="العودة للرئيسية">🏠</div>
+        <div class="sound-toggle" onclick="toggleSound()" id="soundToggle">🔊</div>
+        <div class="quick-help" onclick="showQuickHelp()">❓</div>
+
+        <div class="top-bar">
+            <div class="timer-box">
+                <span class="timer-icon">⏱️</span>
+                <span class="timer-value" id="timerDisplay">10:00</span>
+            </div>
+        </div>
+
+        <div class="level-selector-top">
+            <button class="level-option-btn" onclick="changeLevel(3)">3</button>
+            <button class="level-option-btn active" onclick="changeLevel(4)">4</button>
+            <button class="level-option-btn" onclick="changeLevel(5)">5</button>
+        </div>
+
+        <div class="secret-panel">
+            <div class="secret-label">الرقم السري</div>
+            <div class="secret-digits" id="secretPanel"></div>
+        </div>
+
+        <div class="control-row">
+            <button class="control-btn" onclick="toggleSecret()">
+                <span>🔍</span> إظهار
+            </button>
+            <button class="control-btn" onclick="resetGame()">
+                <span>🔄</span> جديد
+            </button>
+        </div>
+
+        <div class="input-panel">
+            <div class="digits-row" id="digitsPanel"></div>
+            <button class="check-btn" id="checkButton" onclick="checkGuess()" disabled>✅ تحقق</button>
+            <div class="result-panel" id="resultPanel"></div>
+            <div id="winMessageGame" class="win-message-game">🎉 مبروك! لقد كشفت الرقم السري!</div>
+        </div>
+
+        <div class="history-panel">
+            <div class="history-header">
+                <span>📋 سجل المحاولات</span>
+                <span class="history-count" id="attemptsCount">0</span>
+            </div>
+            <div id="historyPanel"></div>
+        </div>
+
+        <div class="keypad-rect">
+            <button class="key-rect" onclick="pressNumber(1)">1</button>
+            <button class="key-rect" onclick="pressNumber(2)">2</button>
+            <button class="key-rect" onclick="pressNumber(3)">3</button>
+            <button class="key-rect" onclick="pressNumber(4)">4</button>
+            <button class="key-rect" onclick="pressNumber(5)">5</button>
+            <button class="key-rect" onclick="pressNumber(6)">6</button>
+            <button class="key-rect" onclick="pressNumber(7)">7</button>
+            <button class="key-rect" onclick="pressNumber(8)">8</button>
+            <button class="key-rect" onclick="pressNumber(9)">9</button>
+            <button class="key-rect" onclick="pressNumber(0)">0</button>
+            <button class="key-rect delete-rect" onclick="pressDelete()">🗑️ حذف</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="hideQuickHelp()"></div>
+    <div class="help-popup" id="helpPopup">
+        <h3>📖 دليل سريع</h3>
+        <p><span class="icon-plus">+</span> : رقم صحيح في مكانه</p>
+        <p><span class="icon-minus">-</span> : رقم صحيح في مكان خاطئ</p>
+        <p><span>❌</span> : لا توجد أرقام صحيحة</p>
+        <p><span>⏱️</span> : المؤقت يتحول للأصفر عند الدقيقة الأخيرة، والأحمر عند آخر 30 ثانية.</p>
+        <p><span>📋</span> : اضغط على أي محاولة سابقة لنسخها.</p>
+        <button class="help-popup-close" onclick="hideQuickHelp()">حسناً</button>
+    </div>
+
+    <script>
+        // ===== متغيرات الصوت =====
+        let soundEnabled = true;
+        let audioContext = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled || !audioContext) return;
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            if (type === 'win') {
+                osc.frequency.value = 800;
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+                
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.value = 1000;
+                    gain2.gain.setValueAtTime(0.1, now + 0.2);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc2.start(now + 0.2);
+                    osc2.stop(now + 0.4);
+                }, 200);
+            } else if (type === 'timeout') {
+                osc.frequency.value = 300;
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // ===== متغيرات المحاكاة (من الصفحة الأولى) =====
+        let simSecret = [];
+        let simPossible = [];
+        let simInterval = null;
+        let simRunning = false;
+        let simLevel = 4;
+
+        function generateSecret() {
+            return Array.from({ length: simLevel }, () => Math.floor(Math.random() * 10));
+        }
+
+        function calculateResult(secret, guess) {
+            let correct = 0;
+            let wrong = 0;
+            let secretCopy = [...secret];
+            let guessCopy = [...guess];
+
+            for (let i = 0; i < secret.length; i++) {
+                if (guessCopy[i] === secretCopy[i]) {
+                    correct++;
+                    secretCopy[i] = null;
+                    guessCopy[i] = null;
+                }
+            }
+
+            for (let i = 0; i < secret.length; i++) {
+                if (guessCopy[i] !== null) {
+                    for (let j = 0; j < secret.length; j++) {
+                        if (secretCopy[j] !== null && guessCopy[i] === secretCopy[j]) {
+                            wrong++;
+                            secretCopy[j] = null;
+                            break;
+                        }
+                    }
+                }
+            }
+            return { correct, wrong };
+        }
+
+        function buildPossible() {
+            let list = [];
+            let max = Math.pow(10, simLevel) - 1;
+            for (let i = 0; i <= max; i++) {
+                list.push(i.toString().padStart(simLevel, '0').split('').map(Number));
+            }
+            return list;
+        }
+
+        function evaluateGuess(guess, possible) {
+            let resultCounts = {};
+            for (let candidate of possible) {
+                let res = calculateResult(candidate, guess);
+                let key = `${res.correct},${res.wrong}`;
+                resultCounts[key] = (resultCounts[key] || 0) + 1;
+            }
+            let worstCase = Math.max(...Object.values(resultCounts));
+            return worstCase;
+        }
+
+        function selectBestGuess(possible) {
+            if (possible.length === 1) return possible[0];
+            
+            if (possible.length === Math.pow(10, simLevel)) {
+                let firstGuess = [];
+                for (let i = 0; i < simLevel; i++) {
+                    firstGuess.push((i % 5) + 1);
+                }
+                return firstGuess;
+            }
+            
+            let bestGuess = possible[0];
+            let bestScore = Infinity;
+            
+            let sample = possible.slice(0, Math.min(100, possible.length));
+            for (let guess of sample) {
+                let score = evaluateGuess(guess, possible);
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestGuess = guess;
+                }
+            }
+            return bestGuess;
+        }
+
+        function resetSimulation() {
+            if (simInterval) {
+                clearTimeout(simInterval);
+                simInterval = null;
+            }
+            simRunning = false;
+            document.getElementById('startSimBtn').disabled = false;
+            document.getElementById('resetSimBtn').disabled = true;
+            document.getElementById('simLog').innerHTML = '';
+            document.getElementById('winMessage').innerHTML = '';
+            document.getElementById('secretDisplay').innerHTML = '';
+        }
+
+        function setSimLevel(level) {
+            if (simRunning) {
+                alert('أوقف المحاكاة أولاً قبل تغيير المستوى.');
+                return;
+            }
+            simLevel = level;
+            document.querySelectorAll('.sim-level-btn').forEach(btn => btn.classList.remove('active'));
+            if (level === 3) document.querySelectorAll('.sim-level-btn')[0].classList.add('active');
+            else if (level === 4) document.querySelectorAll('.sim-level-btn')[1].classList.add('active');
+            else if (level === 5) document.querySelectorAll('.sim-level-btn')[2].classList.add('active');
+            
+            resetSimulation();
+        }
+
+        function startSimulation() {
+            if (simRunning) return;
+            resetSimulation();
+            
+            simSecret = generateSecret();
+            const secretDisplay = document.getElementById('secretDisplay');
+            secretDisplay.innerHTML = simSecret.map(d => `<div class="secret-digit-box">${d}</div>`).join('');
+            
+            let possible = buildPossible(); 
+            
+            const logDiv = document.getElementById('simLog');
+            logDiv.innerHTML = '';
+            
+            let attemptCount = 0;
+            simRunning = true;
+            document.getElementById('startSimBtn').disabled = true;
+            document.getElementById('resetSimBtn').disabled = false;
+
+            function nextStep() {
+                if (possible.length === 0) {
+                    clearTimeout(simInterval);
+                    simRunning = false;
+                    document.getElementById('startSimBtn').disabled = false;
+                    return;
+                }
+
+                let guess = selectBestGuess(possible);
+                attemptCount++;
+
+                let result = calculateResult(simSecret, guess);
+                
+                let entry = document.createElement('div');
+                entry.className = 'log-entry';
+
+                let guessStr = guess.join('');
+                let resultHtml = '';
+                for (let i = 0; i < result.correct; i++) resultHtml += '<span class="log-plus">+</span>';
+                for (let i = 0; i < result.wrong; i++) resultHtml += '<span class="log-minus">-</span>';
+                if (result.correct === 0 && result.wrong === 0) resultHtml = '<span class="log-empty">●</span>';
+
+                entry.innerHTML = `
+                    <span class="log-guess">${guessStr}</span>
+                    <span class="log-result">${resultHtml}</span>
+                    <span style="font-size:0.8rem; color:#666; margin-right:10px;">(${possible.length} احتمال)</span>
+                `;
+                logDiv.appendChild(entry);
+                logDiv.scrollTop = logDiv.scrollHeight;
+
+                if (result.correct === simLevel) {
+                    clearTimeout(simInterval);
+                    simRunning = false;
+                    document.getElementById('winMessage').innerHTML = `🎉 تم الحل في ${attemptCount} محاولات!`;
+                    document.getElementById('startSimBtn').disabled = false;
+                    return;
+                }
+
+                possible = possible.filter(candidate => {
+                    let res = calculateResult(candidate, guess);
+                    return res.correct === result.correct && res.wrong === result.wrong;
+                });
+
+                simInterval = setTimeout(nextStep, 1500);
+            }
+
+            simInterval = setTimeout(nextStep, 1500);
+        }
+
+        // ===== دوال الصفحة الثانية (اللعبة) مع حفظ/استعادة الحالة =====
+        let secretNumber = [];
+        let attemptsList = [];
+        let currentLevel = 4;
+        let activeIndex = 0;
+        let gameActive = true;
+        let gameWin = false;
+        let timeLeft = 600;
+        let maxTime = 600;
+        let timerInterval;
+        let timerRunning = false;
+
+        window.onload = function() {
+            initAudio();
+        };
+
+        function saveGameState() {
+            const state = {
+                secretNumber: secretNumber,
+                attemptsList: attemptsList,
+                currentLevel: currentLevel,
+                timeLeft: timeLeft,
+                gameActive: gameActive,
+                gameWin: gameWin,
+                timerRunning: timerRunning
+            };
+            localStorage.setItem('gameState', JSON.stringify(state));
+        }
+
+        function loadGameState() {
+            const saved = localStorage.getItem('gameState');
+            if (!saved) return false;
+
+            try {
+                const state = JSON.parse(saved);
+                secretNumber = state.secretNumber || [];
+                attemptsList = state.attemptsList || [];
+                currentLevel = state.currentLevel || 4;
+                timeLeft = state.timeLeft || (currentLevel === 3 ? 300 : currentLevel === 4 ? 600 : 900);
+                gameActive = state.gameActive !== undefined ? state.gameActive : true;
+                gameWin = state.gameWin || false;
+                timerRunning = state.timerRunning || false;
+
+                maxTime = currentLevel === 3 ? 300 : currentLevel === 4 ? 600 : 900;
+
+                createInputs(currentLevel);
+                document.querySelectorAll('.level-option-btn').forEach((btn, i) => {
+                    const levels = [3, 4, 5];
+                    if (levels[i] === currentLevel) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+                if (gameWin) {
+                    revealSecret();
+                    document.getElementById('winMessageGame').style.display = 'block';
+                } else {
+                    hideSecret();
+                    document.getElementById('winMessageGame').style.display = 'none';
+                }
+                updateHistory();
+                updateTimer();
+                if (timerRunning && !gameWin && gameActive) {
+                    startTimer();
+                }
+                updateCheckButton();
+                setActive(0);
+
+                return true;
+            } catch (e) {
+                console.error('فشل استعادة الحالة', e);
+                return false;
+            }
+        }
+
+        function clearGameState() {
+            localStorage.removeItem('gameState');
+        }
+
+        function goToLanding() {
+            saveGameState();
+            stopTimer();
+            document.getElementById('gameDashboard').classList.remove('show');
+            document.getElementById('landingPage').style.display = 'flex';
+            document.getElementById('landingPage').classList.remove('hide');
+        }
+
+        function startGame() {
+            document.getElementById('landingPage').classList.add('hide');
+            setTimeout(() => {
+                document.getElementById('landingPage').style.display = 'none';
+                document.getElementById('gameDashboard').classList.add('show');
+                if (!loadGameState()) {
+                    initializeGame();
+                }
+            }, 1000);
+        }
+
+        function initializeGame() {
+            createInputs(currentLevel);
+            generateSecretGame();
+            updateTimer();
+            clearGameState();
+            document.getElementById('winMessageGame').style.display = 'none';
+        }
+
+        function createInputs(count) {
+            const digitsDiv = document.getElementById('digitsPanel');
+            const secretDiv = document.getElementById('secretPanel');
+            
+            digitsDiv.innerHTML = '';
+            secretDiv.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'digit-field';
+                input.id = `digit_${i}`;
+                input.maxLength = 1;
+                input.readOnly = true;
+                input.dataset.index = i;
+                input.addEventListener('click', () => setActive(i));
+                digitsDiv.appendChild(input);
+            }
+            
+            for (let i = 0; i < count; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'secret-slot';
+                cell.id = `secret_${i}`;
+                cell.textContent = '?';
+                secretDiv.appendChild(cell);
+            }
+            
+            setActive(0);
+        }
+
+        function setActive(index) {
+            if (!gameActive || gameWin) return;
+            
+            for (let i = 0; i < currentLevel; i++) {
+                const el = document.getElementById(`digit_${i}`);
+                if (el) el.classList.remove('active');
+            }
+            
+            const current = document.getElementById(`digit_${index}`);
+            if (current) {
+                current.classList.add('active');
+                activeIndex = index;
+            }
+        }
+
+        function generateSecretGame() {
+            secretNumber = [];
+            for (let i = 0; i < currentLevel; i++) {
+                secretNumber.push(Math.floor(Math.random() * 10));
+            }
+        }
+
+        function pressNumber(num) {
+            if (!gameActive || gameWin) return;
+
+            const input = document.getElementById(`digit_${activeIndex}`);
+            if (!input) return;
+            
+            input.value = '';
+            input.value = num;
+            
+            document.getElementById('resultPanel').innerHTML = '';
+            
+            if (!timerRunning && !gameWin) {
+                startTimer();
+                timerRunning = true;
+            }
+            
+            if (activeIndex < currentLevel - 1) {
+                setActive(activeIndex + 1);
+            }
+            
+            updateCheckButton();
+        }
+
+        function pressDelete() {
+            if (!gameActive || gameWin) return;
+
+            const input = document.getElementById(`digit_${activeIndex}`);
+            if (input) {
+                input.value = '';
+                updateCheckButton();
+            }
+        }
+
+        function updateCheckButton() {
+            let allFilled = true;
+            for (let i = 0; i < currentLevel; i++) {
+                const el = document.getElementById(`digit_${i}`);
+                if (!el || el.value === '') {
+                    allFilled = false;
+                    break;
+                }
+            }
+            document.getElementById('checkButton').disabled = !allFilled;
+        }
+
+        function checkGuess() {
+            if (!gameActive || gameWin) return;
+            
+            const guess = [];
+            for (let i = 0; i < currentLevel; i++) {
+                const val = document.getElementById(`digit_${i}`).value;
+                guess.push(parseInt(val));
+            }
+            
+            const guessStr = guess.join('');
+            const isDuplicate = attemptsList.some(item => item.numbers.join('') === guessStr);
+            
+            if (isDuplicate) {
+                document.getElementById('resultPanel').innerHTML = '⚠️ مكررة';
+                setActive(0);
+                return;
+            }
+            
+            let correct = 0, wrong = 0;
+            let secretCopy = [...secretNumber];
+            let guessCopy = [...guess];
+            
+            for (let i = 0; i < currentLevel; i++) {
+                if (guessCopy[i] === secretCopy[i]) {
+                    correct++;
+                    secretCopy[i] = null;
+                    guessCopy[i] = null;
+                }
+            }
+            
+            for (let i = 0; i < currentLevel; i++) {
+                if (guessCopy[i] !== null) {
+                    for (let j = 0; j < currentLevel; j++) {
+                        if (secretCopy[j] !== null && guessCopy[i] === secretCopy[j]) {
+                            wrong++;
+                            secretCopy[j] = null;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            attemptsList.push({
+                numbers: [...guess],
+                correct: correct,
+                wrong: wrong
+            });
+            
+            updateHistory();
+            showResult(correct, wrong);
+            
+            if (correct === currentLevel) {
+                gameWin = true;
+                document.getElementById('resultPanel').innerHTML = '';
+                document.getElementById('winMessageGame').style.display = 'block';
+                revealSecret();
+                stopTimer();
+                if (soundEnabled) playSound('win');
+            } else {
+                clearInputs();
+                setActive(0);
+            }
+        }
+
+        function showResult(correct, wrong) {
+            const resultDiv = document.getElementById('resultPanel');
+            let html = '';
+            for (let i = 0; i < correct; i++) html += '<span class="icon-plus">+</span>';
+            for (let i = 0; i < wrong; i++) html += '<span class="icon-minus">-</span>';
+            if (correct === 0 && wrong === 0) html = '<span>❌</span>';
+            resultDiv.innerHTML = html;
+        }
+
+        function updateHistory() {
+            document.getElementById('attemptsCount').textContent = attemptsList.length;
+            const historyDiv = document.getElementById('historyPanel');
+            historyDiv.innerHTML = '';
+            
+            attemptsList.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'history-item';
+                if (item.correct === currentLevel) {
+                    row.classList.add('winning-attempt');
+                }
+                row.onclick = () => copyAttempt(item.numbers);
+                
+                const numSpan = document.createElement('span');
+                numSpan.className = 'history-number';
+                numSpan.textContent = `${index + 1}. ${item.numbers.join('')}`;
+                
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'history-icons';
+                let icons = '';
+                for (let i = 0; i < item.correct; i++) icons += '<span class="icon-plus-small">+</span>';
+                for (let i = 0; i < item.wrong; i++) icons += '<span class="icon-minus-small">-</span>';
+                if (item.correct === 0 && item.wrong === 0) icons = '❌';
+                iconSpan.innerHTML = icons;
+                
+                row.appendChild(numSpan);
+                row.appendChild(iconSpan);
+                historyDiv.appendChild(row);
+            });
+        }
+
+        function copyAttempt(numbers) {
+            if (!gameActive || gameWin) return;
+            for (let i = 0; i < currentLevel; i++) {
+                const input = document.getElementById(`digit_${i}`);
+                if (input) {
+                    input.value = numbers[i];
+                }
+            }
+            updateCheckButton();
+        }
+
+        function revealSecret() {
+            for (let i = 0; i < currentLevel; i++) {
+                const cell = document.getElementById(`secret_${i}`);
+                cell.textContent = secretNumber[i];
+                cell.classList.add('revealed');
+            }
+        }
+
+        function hideSecret() {
+            for (let i = 0; i < currentLevel; i++) {
+                const cell = document.getElementById(`secret_${i}`);
+                cell.textContent = '?';
+                cell.classList.remove('revealed');
+            }
+        }
+
+        function toggleSecret() {
+            if (gameWin) return;
+            const first = document.getElementById('secret_0');
+            if (first.textContent === '?') revealSecret();
+            else hideSecret();
+        }
+
+        function changeLevel(level) {
+            if (level === currentLevel) return;
+            currentLevel = level;
+            createInputs(level);
+            resetGame();
+            document.querySelectorAll('.level-option-btn').forEach((btn, i) => {
+                const levels = [3, 4, 5];
+                if (levels[i] === level) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            switch(level) {
+                case 3: maxTime = 300; break;
+                case 4: maxTime = 600; break;
+                case 5: maxTime = 900; break;
+            }
+            timeLeft = maxTime;
+            updateTimer();
+        }
+
+        function resetGame() {
+            generateSecretGame();
+            attemptsList = [];
+            gameActive = true;
+            gameWin = false;
+            timerRunning = false;
+            timeLeft = maxTime;
+            stopTimer();
+            hideSecret();
+            clearInputs();
+            updateHistory();
+            updateTimer();
+            document.getElementById('resultPanel').innerHTML = '';
+            document.getElementById('checkButton').disabled = true;
+            document.getElementById('winMessageGame').style.display = 'none';
+            setActive(0);
+            clearGameState();
+        }
+
+        function clearInputs() {
+            for (let i = 0; i < currentLevel; i++) {
+                const el = document.getElementById(`digit_${i}`);
+                if (el) el.value = '';
+            }
+        }
+
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                if (timeLeft <= 0) timeOut();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function updateTimer() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            const timerEl = document.getElementById('timerDisplay');
+            timerEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            if (timeLeft < 30) {
+                timerEl.classList.add('danger');
+                timerEl.classList.remove('warning');
+            } else if (timeLeft < 60) {
+                timerEl.classList.add('warning');
+                timerEl.classList.remove('danger');
+            } else {
+                timerEl.classList.remove('warning', 'danger');
+            }
+        }
+
+        function timeOut() {
+            gameActive = false;
+            document.getElementById('resultPanel').innerHTML = '⏰ انتهى الوقت';
+            revealSecret();
+            stopTimer();
+            if (soundEnabled) playSound('timeout');
+        }
+
+        function showQuickHelp() {
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('helpPopup').classList.add('show');
+        }
+
+        function hideQuickHelp() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('helpPopup').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
